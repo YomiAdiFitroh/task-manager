@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  tasks        Task[]
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Tag {
+  WORK
+  DEV
+  DESIGN
+  PERSONAL
+}
+
+model Task {
+  id        Int       @id @default(autoincrement())
+  title     String    @db.VarChar(120)
+  done      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  dueDate   DateTime?
+  priority  Priority  @default(MEDIUM)
+  userId    Int
+  tag       Tag       @default(WORK)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
